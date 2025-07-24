@@ -33,7 +33,7 @@
 
 // GPIO-definities
 #define LED_GPIO CONFIG_ESP_LED_GPIO
-#define BUTTON_GPIO GPIO_NUM_0
+#define BUTTON_GPIO 33
 #define DEBOUNCE_TIME_MS 50
 
 static const char *TAG = "main";
@@ -63,19 +63,16 @@ void gpio_init() {
 
 // Task voor knopdetectie
 void button_task(void *pvParameter) {
-        bool last_state = true;
-        while (1) {
-                bool current_state = gpio_get_level(BUTTON_GPIO);
-                if (last_state && !current_state) {
-                        vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_TIME_MS));
-                        if (!gpio_get_level(BUTTON_GPIO)) {
-                                ESP_LOGW(TAG, "GPIO 0 pressed → Resetting WiFi config...");
-                                wifi_config_reset();
-                        }
-                }
-                last_state = current_state;
-                vTaskDelay(pdMS_TO_TICKS(10));
+    ESP_LOGI(TAG, "Button task started");
+    while (1) {
+        bool state = gpio_get_level(BUTTON_GPIO);
+        ESP_LOGI(TAG, "Button GPIO level: %d", state);
+        if (!state) {
+            ESP_LOGW(TAG, "BUTTON PRESSED → RESET WIFI");
+            wifi_config_reset();  // bevat al een esp_restart()
         }
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
 }
 
 // Accessory identify
