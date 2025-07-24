@@ -1,0 +1,266 @@
+<!-- part HTML_SETTINGS_HEADER -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>WiFi Configuration</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+      font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+      background-color: #f5f5f7;
+      color: #1d1d1f;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .container {
+      max-width: 480px;
+      margin: 4rem auto;
+      padding: 2rem;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    input[type=text],
+    input[type=password] {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.75rem;
+      margin-bottom: 1.5rem;
+      box-sizing: border-box;
+      border: 1px solid #d2d2d7;
+      border-radius: 12px;
+      background-color: #f9f9f9;
+      transition: border 0.3s ease;
+    }
+    input[type=text]:focus,
+    input[type=password]:focus {
+      outline: none;
+      border-color: #007aff;
+      background-color: #fff;
+    }
+    input[type=submit] {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+    }
+    input[type=submit]#refresh {
+      background-color: #0071e3;
+      color: white;
+      margin-bottom: 1rem;
+    }
+    input[type=submit]#join {
+      background-color: #34c759;
+      color: white;
+    }
+
+    input[type=submit]:hover:not([disabled]) {
+      opacity: 0.9;
+    }
+    input[type=submit][disabled] {
+      background-color: #e5e5ea !important;
+      color: #b1b1b1;
+      cursor: not-allowed;
+    }
+    .networks {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 2rem 0;
+    }
+    .networks li {
+      display: block;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      margin-bottom: 0.5rem;
+      background: #f2f2f7;
+      border-radius: 12px;
+      position: relative;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .networks li:hover {
+      background-color: #e0e0e5;
+    }
+    .networks li.secure {
+      position: relative;
+    }
+    .networks li.secure::after {
+      content: "";
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0.7rem;
+      height: 1rem;
+      background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216.66mm%22%20height%3D%2223.95mm%22%20viewBox%3D%220%200%2047.23%2067.89%22%3E%3Cpath%20d%3D%22M7.79%2C67.89c-2.54%2C0-4.47-.69-5.8-2.08C0.66%2C64.43%2C0%2C62.38%2C0%2C59.66V35.82c0-2.72%2C0.66-4.77%2C1.99-6.14%2C1.33-1.37%2C3.26-2.06%2C5.8-2.06h31.66c2.54%2C0%2C4.47%2C0.69%2C5.8%2C2.06%2C1.33%2C1.37%2C1.99%2C3.42%2C1.99%2C6.14v23.84c0%2C2.72-.66%2C4.78-1.99%2C6.16-1.33%2C1.38-3.26%2C2.08-5.8%2C2.08H7.79ZM6.06%2C30.28V19.35c0-4.34%2C0.84-7.94%2C2.51-10.8%2C1.67-2.86%2C3.85-5%2C6.52-6.42%2C2.68-1.42%2C5.51-2.13%2C8.51-2.13%2C3.02%2C0%2C5.87%2C0.71%2C8.55%2C2.13%2C2.68%2C1.42%2C4.85%2C3.56%2C6.52%2C6.42%2C1.67%2C2.86%2C2.51%2C6.46%2C2.51%2C10.8v10.93h-5.47V18.58c0-2.91-.56-5.35-1.68-7.34-1.12-1.98-2.6-3.48-4.43-4.5-1.83-1.01-3.84-1.52-6-1.52-2.15%2C0-4.13%2C0.51-5.97%2C1.52-1.83%2C1.02-3.3%2C2.51-4.41%2C4.5-1.11%2C1.98-1.66%2C4.43-1.66%2C7.34v11.7h-5.5Z%22%20fill%3D%22%23939598%22/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+    .networks li {
+      position: relative;
+      padding-left: 2.5rem;
+      /* ruimte voor icoon */
+    }
+    .networks li:not(.other)::before {
+      content: "";
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1rem;
+      height: 1rem;
+      background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224.9mm%22%20height%3D%2224.9mm%22%20viewBox%3D%220%200%2070.59%2070.59%22%3E%3Cpath%20d%3D%22M35.29%2C70.59c-4.87%2C0-9.44-.92-13.7-2.75-4.27-1.83-8.02-4.37-11.25-7.61-3.23-3.24-5.76-6.99-7.6-11.25s-2.75-8.82-2.75-13.69.92-9.44%2C2.75-13.7%2C4.37-8.02%2C7.6-11.25c3.23-3.23%2C6.98-5.76%2C11.25-7.6%2C4.27-1.83%2C8.83-2.75%2C13.7-2.75s9.43%2C0.92%2C13.7%2C2.75c4.27%2C1.83%2C8.02%2C4.37%2C11.25%2C7.6%2C3.23%2C3.23%2C5.76%2C6.98%2C7.6%2C11.25s2.75%2C8.83%2C2.75%2C13.7-.92%2C9.43-2.75%2C13.69-4.37%2C8%2C-7.6%2C11.25c-3.23%2C3.24-6.98%2C5.78-11.25%2C7.61-4.27%2C1.83-8.83%2C2.75-13.7%2C2.75ZM15.54%2C32.98c.21.28.49.42.85.42.36%2C0%2C.67-.15.95-.45%2C2.33-2.49%2C5.03-4.39%2C8.1-5.69%2C3.07-1.3%2C6.37-1.96%2C9.9-1.96%2C3.53%2C0%2C6.83%2C0.65%2C9.91%2C1.96%2C3.08%2C1.3%2C5.78%2C3.21%2C8.11%2C5.73.58.58%2C1.16.57%2C1.76-.03l2.66-2.7c.48-.51.52-1.03.1-1.56-1.61-1.98-3.62-3.72-6.02-5.21-2.4-1.49-5.02-2.64-7.87-3.46-2.85-.82-5.74-1.23-8.67-1.23s-5.82.41-8.67%2C1.23c-2.85.82-5.47%2C1.97-7.87%2C3.46-2.4%2C1.49-4.41%2C3.23-6.02%2C5.21-.44.53-.4%2C1.05.1%2C1.56l2.66%2C2.73ZM23.67%2C41.14c.65.62%2C1.27.6%2C1.87-.07%2C1.2-1.34%2C2.68-2.4%2C4.43-3.2%2C1.75-.8%2C3.54-1.18%2C5.36-1.16%2C1.8-.02%2C3.59.36%2C5.36%2C1.16%2C1.78.8%2C3.28%2C1.87%2C4.5%2C3.24.28.3.58.45.9.45.32%2C0%2C.62-.14.9-.42l3.01-3.04c.23-.21.35-.46.36-.74.01-.29-.09-.54-.29-.74-1.61-1.96-3.75-3.53-6.4-4.71-2.65-1.18-5.43-1.77-8.34-1.77s-5.69.59-8.34%2C1.77c-2.65%2C1.18-4.8%2C2.75-6.44%2C4.71-.39.48-.35.98.14%2C1.49l2.98%2C3.04ZM35.33%2C51.9c.28%2C0%2C.54-.07.8-.21.25-.14.59-.42%2C1-.83l4.74-4.6c.48-.48.53-.98.14-1.49-.71-.95-1.68-1.72-2.91-2.32-1.22-.6-2.48-.9-3.77-.9-1.31%2C0-2.58.31-3.81.93-1.22.62-2.2%2C1.44-2.94%2C2.46-.3.44-.23.88.21%2C1.31l4.77%2C4.6c.39.42.71.69.97.83.25.14.52.21.8.21Z%22%20fill%3D%22%23939598%22/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+    .networks li.selected {
+      background-color: #d6eaff;
+      font-weight: 600;
+    }
+    .networks li.other {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .nonetworks {
+      text-align: center;
+      margin: 2rem 0;
+      color: #999;
+      font-size: 0.95rem;
+    }
+    .field {
+      margin-bottom: 1.5rem;
+    }
+    .field.required label::before {
+      content: "* ";
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- part HTML_SETTINGS_CUSTOM_HTML -->
+    {{ custom_html|safe }}
+    <!-- part HTML_SETTINGS_BODY -->
+    <h1>Choose a Wi-Fi Network</h1>
+    <form action="/settings" method="get">
+      <input type="submit" id="refresh" value="⟲ Refresh" />
+    </form>
+    <form action="/settings" method="post">
+      <div class="nonetworks" style="display: none;">No networks found</div>
+      <ul id="networks" class="networks">
+          <!-- part HTML_NETWORK_ITEM -->
+        {% for network in networks %}
+        <li class="{{ network.secure | ternary('secure', 'unsecure') }}">{{ network.ssid }}</li>
+        {% endfor %}
+        <!-- part HTML_SETTINGS_FOOTER -->
+        <li class="other">Choose Another Network</li>
+      </ul>
+      <div class="field required ssid" style="display: none;">
+        <label for="ssid">SSID:</label>
+        <input type="text" id="ssid" name="ssid" />
+      </div>
+      <div class="field required password" style="display: none;">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" />
+      </div>
+      <input type="submit" id="join" value="Join" disabled />
+    </form>
+    <p style="text-align:center"><sub><sup>Copyright © 2025 | StudioPieters® | All rights reserved.</sub></sup></p>
+  </div>
+  <script>
+    const networks_block = document.getElementById('networks');
+    const ssid_block = document.querySelector('.field.ssid');
+    const ssid_field = document.getElementById('ssid');
+    const password_block = document.querySelector('.field.password');
+    const password_field = document.getElementById('password');
+    const join_button = document.getElementById('join');
+    function enable(el) {
+      el.disabled = false;
+    }
+    function disable(el) {
+      el.disabled = true;
+    }
+    function show(el) {
+      el.style.display = 'block';
+    }
+    function hide(el) {
+      el.style.display = 'none';
+    }
+    function selectNetwork(el) {
+      document.querySelectorAll('ul.networks li').forEach(n => n.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    document.querySelectorAll('ul.networks li.unsecure').forEach(li => {
+      li.onclick = () => {
+        selectNetwork(li);
+        ssid_field.value = li.innerText;
+        hide(ssid_block);
+        hide(password_block);
+        disable(password_field);
+        password_field.value = '';
+        enable(join_button);
+      };
+    });
+    document.querySelectorAll('ul.networks li.secure').forEach(li => {
+      li.onclick = () => {
+        selectNetwork(li);
+        ssid_field.value = li.innerText;
+        hide(ssid_block);
+        enable(password_field);
+        show(password_block);
+        disable(join_button);
+        password_block.classList.add('required');
+      };
+    });
+    document.querySelectorAll('ul.networks li.other').forEach(li => {
+      li.onclick = () => {
+        if (li.classList.contains('selected')) return;
+        selectNetwork(li);
+        ssid_field.value = '';
+        show(ssid_block);
+        show(password_block);
+        enable(ssid_field);
+        enable(password_field);
+        disable(join_button);
+        password_block.classList.remove('required');
+      };
+    });
+    if (document.querySelectorAll('ul.networks li').length === 1) {
+      show(document.querySelector('.nonetworks'));
+      hide(networks_block);
+      show(ssid_block);
+      show(password_block);
+      password_block.classList.remove('required');
+    }
+    [ssid_field, password_field].forEach(input => {
+      input.oninput = () => {
+        const ssidRequired = ssid_block.classList.contains('required');
+        const passwordRequired = password_block.classList.contains('required');
+        const enableBtn = (!ssidRequired || ssid_field.value !== '') &&
+          (!passwordRequired || password_field.value !== '');
+        enableBtn ? enable(join_button) : disable(join_button);
+      };
+    });
+  </script>
+</body>
+</html>

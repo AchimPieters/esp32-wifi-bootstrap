@@ -1,0 +1,22 @@
+dependencies:
+  idf: '>=5.0'
+description: ESP32 WiFi Bootstrap is a lightweight, high-performance Wi-Fi provisioning
+  solution for the ESP32. It provides a user-friendly captive portal experience with
+  fast configuration, persistent storage, and full compatibility with ESP-IDF 5.4
+  or later.
+issues: https://github.com/AchimPieters/esp32-wifi-bootstrap/issues
+license: MIT
+maintainers:
+- info@studiopieters.nl
+repository: https://github.com/AchimPieters/esp32-wifi-bootstrap
+targets:
+- esp32
+- esp32c2
+- esp32c3
+- esp32c5
+- esp32c6
+- esp32c61
+- esp32s2
+- esp32s3
+url: https://github.com/AchimPieters/esp32-wifi-bootstrap
+version: 1.0.1
