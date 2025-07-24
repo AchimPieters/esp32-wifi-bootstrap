@@ -1024,6 +1024,8 @@ void wifi_config_init2(const char *ssid_prefix, const char *password,
 void wifi_config_reset() {
         sysparam_set_string("wifi_ssid", "");
         sysparam_set_string("wifi_password", "");
+        vTaskDelay(pdMS_TO_TICKS(100));
+        esp_restart();
 }
 
 
