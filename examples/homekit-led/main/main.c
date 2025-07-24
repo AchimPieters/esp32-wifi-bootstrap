@@ -31,50 +31,85 @@
 #include <homekit/characteristics.h>
 #include <wifi_config.h>
 
-// LED control
+// GPIO-definities
 #define LED_GPIO CONFIG_ESP_LED_GPIO
+#define BUTTON_GPIO GPIO_NUM_0
+#define DEBOUNCE_TIME_MS 50
+
+static const char *TAG = "main";
+
 bool led_on = false;
 
 void led_write(bool on) {
-    gpio_set_level(LED_GPIO, on ? 1 : 0);
+        gpio_set_level(LED_GPIO, on ? 1 : 0);
 }
 
 void gpio_init() {
-    gpio_reset_pin(LED_GPIO);
-    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
-    led_write(led_on);
+        // LED setup
+        gpio_reset_pin(LED_GPIO);
+        gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
+        led_write(led_on);
+
+        // Knop setup
+        gpio_config_t io_conf = {
+                .pin_bit_mask = 1ULL << BUTTON_GPIO,
+                        .mode = GPIO_MODE_INPUT,
+                        .pull_up_en = GPIO_PULLUP_ENABLE,
+                        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                        .intr_type = GPIO_INTR_DISABLE
+        };
+        gpio_config(&io_conf);
 }
 
-void accessory_identify_task(void *args) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 2; j++) {
-            led_write(true);
-            vTaskDelay(pdMS_TO_TICKS(100));
-            led_write(false);
-            vTaskDelay(pdMS_TO_TICKS(100));
+// Task voor knopdetectie
+void button_task(void *pvParameter) {
+        bool last_state = true;
+        while (1) {
+                bool current_state = gpio_get_level(BUTTON_GPIO);
+                if (last_state && !current_state) {
+                        vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_TIME_MS));
+                        if (!gpio_get_level(BUTTON_GPIO)) {
+                                ESP_LOGW(TAG, "GPIO 0 pressed → Resetting WiFi config...");
+                                wifi_config_reset();
+                        }
+                }
+                last_state = current_state;
+                vTaskDelay(pdMS_TO_TICKS(10));
         }
-        vTaskDelay(pdMS_TO_TICKS(250));
-    }
-    led_write(led_on);
-    vTaskDelete(NULL);
+}
+
+// Accessory identify
+void accessory_identify_task(void *args) {
+        for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 2; j++) {
+                        led_write(true);
+                        vTaskDelay(pdMS_TO_TICKS(100));
+                        led_write(false);
+                        vTaskDelay(pdMS_TO_TICKS(100));
+                }
+                vTaskDelay(pdMS_TO_TICKS(250));
+        }
+        led_write(led_on);
+        vTaskDelete(NULL);
 }
 
 void accessory_identify(homekit_value_t _value) {
-    ESP_LOGI("INFO", "Accessory identify");
-    xTaskCreate(accessory_identify_task, "identify", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
+        ESP_LOGI(TAG, "Accessory identify");
+        xTaskCreate(accessory_identify_task, "identify", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 }
 
+// HomeKit callbacks
 homekit_value_t led_on_get() {
-    return HOMEKIT_BOOL(led_on);
+        return HOMEKIT_BOOL(led_on);
 }
 
 void led_on_set(homekit_value_t value) {
-    if (value.format != homekit_format_bool) {
-        ESP_LOGE("ERROR", "Invalid value format: %d", value.format);
-        return;
-    }
-    led_on = value.bool_value;
-    led_write(led_on);
+        if (value.format != homekit_format_bool) {
+                ESP_LOGE(TAG, "Invalid value format: %d", value.format);
+                return;
+        }
+        led_on = value.bool_value;
+        led_write(led_on);
 }
 
 // HomeKit metadata
@@ -93,41 +128,41 @@ homekit_characteristic_t revision = HOMEKIT_CHARACTERISTIC_(FIRMWARE_REVISION, F
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverride-init"
 homekit_accessory_t *accessories[] = {
-    HOMEKIT_ACCESSORY(.id = 1, .category = homekit_accessory_category_lighting, .services = (homekit_service_t*[]) {
-        HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics = (homekit_characteristic_t*[]) {
-            &name,
-            &manufacturer,
-            &serial,
-            &model,
-            &revision,
-            HOMEKIT_CHARACTERISTIC(IDENTIFY, accessory_identify),
-            NULL
-        }),
-        HOMEKIT_SERVICE(LIGHTBULB, .primary = true, .characteristics = (homekit_characteristic_t*[]) {
-            HOMEKIT_CHARACTERISTIC(NAME, "HomeKit LED"),
-            HOMEKIT_CHARACTERISTIC(ON, false, .getter = led_on_get, .setter = led_on_set),
-            NULL
+        HOMEKIT_ACCESSORY(.id = 1, .category = homekit_accessory_category_lighting, .services = (homekit_service_t*[]) {
+                HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics = (homekit_characteristic_t*[]) {
+                        &name,
+                        &manufacturer,
+                        &serial,
+                        &model,
+                        &revision,
+                        HOMEKIT_CHARACTERISTIC(IDENTIFY, accessory_identify),
+                        NULL
+                }),
+                HOMEKIT_SERVICE(LIGHTBULB, .primary = true, .characteristics = (homekit_characteristic_t*[]) {
+                        HOMEKIT_CHARACTERISTIC(NAME, DEVICE_NAME),
+                        HOMEKIT_CHARACTERISTIC(ON, false, .getter = led_on_get, .setter = led_on_set),
+                        NULL
+                }),
+                NULL
         }),
         NULL
-    }),
-    NULL
 };
 #pragma GCC diagnostic pop
 
 homekit_server_config_t config = {
-    .accessories = accessories,
-    .password = CONFIG_ESP_SETUP_CODE,
-    .setupId = CONFIG_ESP_SETUP_ID,
+        .accessories = accessories,
+        .password = CONFIG_ESP_SETUP_CODE,
+        .setupId = CONFIG_ESP_SETUP_ID,
 };
 
 void on_wifi_ready() {
-    ESP_LOGI("INFO", "WiFi ready, starting HomeKit");
-    homekit_server_init(&config);
+        ESP_LOGI(TAG, "WiFi ready, starting HomeKit");
+        homekit_server_init(&config);
 }
 
 void app_main(void) {
-    ESP_ERROR_CHECK(nvs_flash_init());
-    gpio_init();
-    wifi_config_init("MyDevice", NULL, on_wifi_ready);
+        ESP_ERROR_CHECK(nvs_flash_init());
+        gpio_init();
+        xTaskCreate(button_task, "button_task", 2048, NULL, 10, NULL);
+        wifi_config_init(DEVICE_NAME, NULL, on_wifi_ready);
 }
-

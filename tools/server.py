@@ -68,9 +68,11 @@ def _render_settings(networks):
 def get_settings():
     return _render_settings(WIFI_NETWORKS)
 
+
 @app.route('/settings0', methods=['GET'])
 def get_settings0():
     return _render_settings([])
+
 
 @app.route('/settings', methods=['POST'])
 def update_settings():

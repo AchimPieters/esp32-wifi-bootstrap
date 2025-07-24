@@ -1,8 +1,8 @@
 #pragma once
 
 typedef enum {
-    WIFI_CONFIG_CONNECTED = 1,
-    WIFI_CONFIG_DISCONNECTED = 2,
+        WIFI_CONFIG_CONNECTED = 1,
+        WIFI_CONFIG_DISCONNECTED = 2,
 } wifi_config_event_t;
 
 void wifi_config_init(const char *ssid_prefix, const char *password, void (*on_wifi_ready)());

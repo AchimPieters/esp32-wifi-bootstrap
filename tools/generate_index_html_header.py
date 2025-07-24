@@ -12,8 +12,10 @@ PARTS = {
     "HTML_SETTINGS_FOOTER": "html_settings_footer"
 }
 
+
 def escape_c_string(s):
     return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n"\n"')
+
 
 def extract_parts(html):
     # Verwijder Jinja2 {% ... %} tags
@@ -40,6 +42,7 @@ def extract_parts(html):
 
     return result
 
+
 def generate_c_output(parts):
     output = ["// Auto-generated from index.html\n"]
 
@@ -48,10 +51,13 @@ def generate_c_output(parts):
         content = parts.get(name, "")
 
         lines = content.splitlines()
-        processed_lines = ['"' + line.lstrip().replace('"', '\\"') + '"' for line in lines if line.strip()]
-        output.append(f'const char *{name} = \n' + '\n'.join(processed_lines) + ';\n')
+        processed_lines = [
+            '"' + line.lstrip().replace('"', '\\"') + '"' for line in lines if line.strip()]
+        output.append(f'const char *{name} = \n' +
+                      '\n'.join(processed_lines) + ';\n')
 
     return '\n'.join(output)
+
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -64,7 +70,8 @@ def main():
         return
 
     if os.path.exists(output_file):
-        confirm = input(f"⚠️ '{output_file}' already exists. Overwrite? (y/n): ").strip().lower()
+        confirm = input(
+            f"⚠️ '{output_file}' already exists. Overwrite? (y/n): ").strip().lower()
         if confirm != 'y':
             print("❌ Aborted.")
             return
@@ -79,6 +86,7 @@ def main():
         f.write(c_output)
 
     print(f"✅ Generated: {output_file}")
+
 
 if __name__ == '__main__':
     main()
